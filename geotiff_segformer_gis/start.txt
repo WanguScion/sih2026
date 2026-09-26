@@ -1,0 +1,10 @@
+python3 -m venv .venv
+source .venv/bin/activate
+
+.venv/bin/pip install upgrade pip
+.venv/bin/pip install -r requirements.txt
+
+git lfs install
+git clone https://huggingface.co/alanoix/segformer_b0_flair_one ./models/segformer_b0_flair_one
+
+.venv/bin/python main.py --input input/survey_1.tif --dsm input/dsm_1.tif
