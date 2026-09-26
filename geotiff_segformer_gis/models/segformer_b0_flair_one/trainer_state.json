@@ -1,0 +1,180 @@
+{
+  "best_metric": null,
+  "best_model_checkpoint": null,
+  "epoch": 2.0,
+  "global_step": 7706,
+  "is_hyper_param_search": false,
+  "is_local_process_zero": true,
+  "is_world_process_zero": true,
+  "log_history": [
+    {
+      "epoch": 0.13,
+      "learning_rate": 5.610692966519595e-05,
+      "loss": 0.4451,
+      "step": 500
+    },
+    {
+      "epoch": 0.26,
+      "learning_rate": 5.22138593303919e-05,
+      "loss": 0.4514,
+      "step": 1000
+    },
+    {
+      "epoch": 0.39,
+      "learning_rate": 4.832078899558785e-05,
+      "loss": 0.4582,
+      "step": 1500
+    },
+    {
+      "epoch": 0.52,
+      "learning_rate": 4.442771866078381e-05,
+      "loss": 0.4557,
+      "step": 2000
+    },
+    {
+      "epoch": 0.65,
+      "learning_rate": 4.053464832597976e-05,
+      "loss": 0.4534,
+      "step": 2500
+    },
+    {
+      "epoch": 0.78,
+      "learning_rate": 3.664157799117571e-05,
+      "loss": 0.4455,
+      "step": 3000
+    },
+    {
+      "epoch": 0.91,
+      "learning_rate": 3.274850765637166e-05,
+      "loss": 0.4402,
+      "step": 3500
+    },
+    {
+      "epoch": 1.0,
+      "eval_accuracy_None": NaN,
+      "eval_accuracy_agricultural land": 0.7813386395765931,
+      "eval_accuracy_bare soil": 0.971091004630694,
+      "eval_accuracy_brushwood": 0.4830336072186893,
+      "eval_accuracy_building": 0.8838384753757415,
+      "eval_accuracy_coniferous": 0.7208068036699242,
+      "eval_accuracy_deciduous": 0.8006803561073339,
+      "eval_accuracy_herbaceous vegetation": 0.8549826884031253,
+      "eval_accuracy_impervious surface": 0.9187355943365163,
+      "eval_accuracy_pervious surface": 0.7191859187453563,
+      "eval_accuracy_plowed land": 0.9549852972817902,
+      "eval_accuracy_vineyard": 0.9980486408918603,
+      "eval_accuracy_water": 0.9701090639122775,
+      "eval_iou_None": 0.0,
+      "eval_iou_agricultural land": 0.7748956198639237,
+      "eval_iou_bare soil": 0.8132029366750227,
+      "eval_iou_brushwood": 0.40602795118599255,
+      "eval_iou_building": 0.8085532215342824,
+      "eval_iou_coniferous": 0.646262784569598,
+      "eval_iou_deciduous": 0.6606641623930074,
+      "eval_iou_herbaceous vegetation": 0.6103168926606636,
+      "eval_iou_impervious surface": 0.7698259661987548,
+      "eval_iou_pervious surface": 0.6598766824934269,
+      "eval_iou_plowed land": 0.5011841401997907,
+      "eval_iou_vineyard": 0.9867169913442101,
+      "eval_iou_water": 0.9468937991005187,
+      "eval_loss": 0.4677870571613312,
+      "eval_mean_accuracy": 0.8380696741791583,
+      "eval_mean_iou": 0.6603400883245533,
+      "eval_overall_accuracy": 0.8208117616254381,
+      "eval_runtime": 4.5075,
+      "eval_samples_per_second": 13.755,
+      "eval_steps_per_second": 0.887,
+      "step": 3853
+    },
+    {
+      "epoch": 1.04,
+      "learning_rate": 2.8855437321567608e-05,
+      "loss": 0.434,
+      "step": 4000
+    },
+    {
+      "epoch": 1.17,
+      "learning_rate": 2.496236698676356e-05,
+      "loss": 0.4318,
+      "step": 4500
+    },
+    {
+      "epoch": 1.3,
+      "learning_rate": 2.1069296651959512e-05,
+      "loss": 0.4154,
+      "step": 5000
+    },
+    {
+      "epoch": 1.43,
+      "learning_rate": 1.7176226317155462e-05,
+      "loss": 0.4213,
+      "step": 5500
+    },
+    {
+      "epoch": 1.56,
+      "learning_rate": 1.3283155982351414e-05,
+      "loss": 0.4192,
+      "step": 6000
+    },
+    {
+      "epoch": 1.69,
+      "learning_rate": 9.390085647547366e-06,
+      "loss": 0.4171,
+      "step": 6500
+    },
+    {
+      "epoch": 1.82,
+      "learning_rate": 5.497015312743317e-06,
+      "loss": 0.4118,
+      "step": 7000
+    },
+    {
+      "epoch": 1.95,
+      "learning_rate": 1.603944977939268e-06,
+      "loss": 0.411,
+      "step": 7500
+    },
+    {
+      "epoch": 2.0,
+      "eval_accuracy_None": NaN,
+      "eval_accuracy_agricultural land": 0.8489823637268769,
+      "eval_accuracy_bare soil": 0.9597129626588722,
+      "eval_accuracy_brushwood": 0.5742661624827765,
+      "eval_accuracy_building": 0.8931234528184192,
+      "eval_accuracy_coniferous": 0.7618443814475007,
+      "eval_accuracy_deciduous": 0.8043905078557081,
+      "eval_accuracy_herbaceous vegetation": 0.843671475167057,
+      "eval_accuracy_impervious surface": 0.9130546307475295,
+      "eval_accuracy_pervious surface": 0.7769049471127405,
+      "eval_accuracy_plowed land": 0.9814128953596787,
+      "eval_accuracy_vineyard": 0.9976670786432974,
+      "eval_accuracy_water": 0.974405922800898,
+      "eval_iou_None": 0.0,
+      "eval_iou_agricultural land": 0.8415255199737784,
+      "eval_iou_bare soil": 0.8498461556358222,
+      "eval_iou_brushwood": 0.46435214422273274,
+      "eval_iou_building": 0.8011746733913444,
+      "eval_iou_coniferous": 0.6663445161801402,
+      "eval_iou_deciduous": 0.6604277124005387,
+      "eval_iou_herbaceous vegetation": 0.6330786495419254,
+      "eval_iou_impervious surface": 0.7971866718106758,
+      "eval_iou_pervious surface": 0.7073450753615901,
+      "eval_iou_plowed land": 0.7446258325715032,
+      "eval_iou_vineyard": 0.9106504362047068,
+      "eval_iou_water": 0.9464448208961204,
+      "eval_loss": 0.4119175970554352,
+      "eval_mean_accuracy": 0.8607863984017795,
+      "eval_mean_iou": 0.6940770929377599,
+      "eval_overall_accuracy": 0.8447827383038713,
+      "eval_runtime": 3.8778,
+      "eval_samples_per_second": 15.989,
+      "eval_steps_per_second": 1.032,
+      "step": 7706
+    }
+  ],
+  "max_steps": 7706,
+  "num_train_epochs": 2,
+  "total_flos": 2.1627715059921715e+18,
+  "trial_name": null,
+  "trial_params": null
+}

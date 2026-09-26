@@ -1,0 +1,100 @@
+{
+  "_name_or_path": "/content/gdrive/MyDrive/flair-one/models/segformer_b0_rgb",
+  "architectures": [
+    "SegformerForSemanticSegmentation"
+  ],
+  "attention_probs_dropout_prob": 0.0,
+  "classifier_dropout_prob": 0.1,
+  "decoder_hidden_size": 256,
+  "depths": [
+    2,
+    2,
+    2,
+    2
+  ],
+  "downsampling_rates": [
+    1,
+    4,
+    8,
+    16
+  ],
+  "drop_path_rate": 0.1,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.0,
+  "hidden_sizes": [
+    32,
+    64,
+    160,
+    256
+  ],
+  "id2label": {
+    "0": "None",
+    "1": "building",
+    "2": "pervious surface",
+    "3": "impervious surface",
+    "4": "bare soil",
+    "5": "water",
+    "6": "coniferous",
+    "7": "deciduous",
+    "8": "brushwood",
+    "9": "vineyard",
+    "10": "herbaceous vegetation",
+    "11": "agricultural land",
+    "12": "plowed land"
+  },
+  "image_size": 224,
+  "initializer_range": 0.02,
+  "label2id": {
+    "None": 0,
+    "agricultural land": 11,
+    "bare soil": 4,
+    "brushwood": 8,
+    "building": 1,
+    "coniferous": 6,
+    "deciduous": 7,
+    "herbaceous vegetation": 10,
+    "impervious surface": 3,
+    "pervious surface": 2,
+    "plowed land": 12,
+    "vineyard": 9,
+    "water": 5
+  },
+  "layer_norm_eps": 1e-06,
+  "mlp_ratios": [
+    4,
+    4,
+    4,
+    4
+  ],
+  "model_type": "segformer",
+  "num_attention_heads": [
+    1,
+    2,
+    5,
+    8
+  ],
+  "num_channels": 3,
+  "num_encoder_blocks": 4,
+  "patch_sizes": [
+    7,
+    3,
+    3,
+    3
+  ],
+  "reshape_last_stage": true,
+  "semantic_loss_ignore_index": 255,
+  "sr_ratios": [
+    8,
+    4,
+    2,
+    1
+  ],
+  "strides": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "torch_dtype": "float32",
+  "transformers_version": "4.26.0"
+}
