@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PipelineRun {
+  ulpin      String   @id
+  geojson    Json
+  geom       Unsupported("geometry(GeometryCollectionZ, 4326)")
+  inputPath  String
+  outputPath String
+  status     String
+  createdAt  DateTime @default(now())
+
+  @@map("pipeline_runs")
+}

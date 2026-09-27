@@ -1,0 +1,27 @@
+{
+  "name": "geotiff-pipeline-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express API that ingests a GeoTIFF orthophoto + DSM, runs the Python SegFormer/RANSAC roof-reconstruction pipeline, and logs the resulting 3D GIS vector data (with a ULPIN) into PostGIS via Prisma.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.0",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "multer": "^2.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "prisma": "^7.10.0"
+  }
+}
