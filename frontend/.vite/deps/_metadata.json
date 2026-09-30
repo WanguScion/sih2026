@@ -1,0 +1,40 @@
+{
+  "hash": "d2f95ed0",
+  "configHash": "8fbd8613",
+  "lockfileHash": "5f049619",
+  "browserHash": "e726961a",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "4cf3835f",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "3363ee3f",
+      "needsInterop": true
+    },
+    "cesium": {
+      "src": "../../node_modules/cesium/Source/Cesium.js",
+      "file": "cesium.js",
+      "fileHash": "9240b311",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-OYFY54QK": {
+      "file": "chunk-OYFY54QK.js"
+    },
+    "zip-reader-J3PW5CZK": {
+      "file": "zip-reader-J3PW5CZK.js"
+    },
+    "chunk-GW2VVQNK": {
+      "file": "chunk-GW2VVQNK.js"
+    },
+    "chunk-BJ7B4R26": {
+      "file": "chunk-BJ7B4R26.js"
+    }
+  }
+}
