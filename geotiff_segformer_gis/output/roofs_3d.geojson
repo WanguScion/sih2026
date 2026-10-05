@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "roofs_3d",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32633" } },
+"features": [
+{ "type": "Feature", "properties": { "plane_id": 0, "n_points": 155, "slope_deg": 36.61, "aspect_deg": 0.0, "area_xy": 20.72, "normal_x": 0.0, "normal_y": 0.5964, "normal_z": 0.8027, "building_id": 0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 493.9, 500.1, 6.35097670233165 ], [ 493.7, 500.9, 5.756528995314341 ], [ 493.7, 503.9, 3.527330816184985 ], [ 504.3, 503.9, 3.527058356410237 ], [ 503.9, 503.7, 3.675681849853106 ], [ 493.9, 500.1, 6.35097670233165 ] ] ] } }
+]
+}

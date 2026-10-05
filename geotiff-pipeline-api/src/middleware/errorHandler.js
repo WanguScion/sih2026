@@ -1,11 +1,15 @@
 const multer = require('multer');
 
+const EXPECTED_FIELDS = new Set(['geotiff', 'dsm']);
+
 function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
   if (err instanceof multer.MulterError) {
-    const message =
-      err.code === 'LIMIT_UNEXPECTED_FILE'
+    let message = err.message;
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = EXPECTED_FIELDS.has(err.field)
         ? `Invalid file for field "${err.field}": only .tif/.tiff files are accepted.`
-        : err.message;
+        : `Unexpected field "${err.field}". This endpoint expects multipart form fields named exactly "geotiff" and "dsm".`;
+    }
     return res.status(400).json({ error: message, code: err.code });
   }
 

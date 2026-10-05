@@ -57,12 +57,29 @@ geojson = {
 target = Path(output_path)
 if str(target).endswith(".geojson"):
     target.parent.mkdir(parents=True, exist_ok=True)
+    buildings_path = target.parent / "buildings.geojson"
     with open(target, "w") as f:
         json.dump(geojson, f)
 else:
     target.mkdir(parents=True, exist_ok=True)
+    buildings_path = target / "buildings.geojson"
     with open(target / "roofs_3d.geojson", "w") as f:
         json.dump(geojson, f)
+
+buildings_geojson = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {"class": "building"},
+            "geometry": {"type": "Polygon", "coordinates": [[[500010, 4499990], [500020, 4499990],
+                                                               [500020, 4500010], [500010, 4500010],
+                                                               [500010, 4499990]]]},
+        }
+    ],
+}
+with open(buildings_path, "w") as f:
+    json.dump(buildings_geojson, f)
 
 print("fake_pipeline: done")
 sys.exit(0)

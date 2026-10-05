@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const pipelineRoutes = require('./routes/pipeline.routes');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -6,6 +7,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 function createApp() {
   const app = express();
 
+  app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
   app.use(express.json());
 
   app.get('/health', (req, res) => res.json({ status: 'ok' }));

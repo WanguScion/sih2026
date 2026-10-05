@@ -60,15 +60,6 @@ from geoseg import (
     save_3d_vector,
 )
 
-from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
-
-MODEL_PATH = "./models/segformer_b0_flair_one"
-
-processor = AutoImageProcessor.from_pretrained(MODEL_PATH)
-model = AutoModelForSemanticSegmentation.from_pretrained(MODEL_PATH)
-
-print("Model loaded successfully")
-
 log = logging.getLogger("geoseg.main")
 
 # Hardcoded defaults: with no flags at all, `python main.py` looks for
@@ -77,26 +68,20 @@ DEFAULT_INPUT = "survey.tif"
 DEFAULT_DSM = "dsm.tif"
 DEFAULT_OUTPUT_DIR = "output"
 
-
+default_model = str(Path(__file__).resolve().parent / "models" / "segformer_b0_flair_one")
 def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="GeoTIFF + DSM -> SegFormer building masks -> RANSAC roof planes "
                     "-> 3D mesh -> 3D GIS vector data, end to end.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--input", "-i", default=DEFAULT_INPUT,
-                    help="Path to the input orthophoto GeoTIFF")
-    p.add_argument("--dsm", default=DEFAULT_DSM,
-                    help="Path to the DSM (Digital Surface Model) GeoTIFF used for roof "
-                         "reconstruction — an elevation raster that includes rooftops, "
-                         "not bare-earth-only like a DTM/DEM")
-    p.add_argument("--output-dir", "-o", default=DEFAULT_OUTPUT_DIR,
-                    help="Directory to write all outputs into: buildings.geojson "
-                         "(2D footprints), roofs.obj (3D mesh), roofs_3d.gpkg "
-                         "(final 3D x,y,z GIS vector data)")
+    p.add_argument("--input-path", required=True,
+                    help="Directory containing survey.tif and dsm.tif")
+    p.add_argument("--output-path", required=True,
+                    help="Directory to write all outputs into")
 
     seg_group = p.add_argument_group("segmentation")
-    seg_group.add_argument("--model", default=MODEL_PATH,
+    seg_group.add_argument("--model", default=default_model,
                             help="HF Hub model id or local path to a SegFormer checkpoint")
     seg_group.add_argument("--device", default=None, help="'cuda' or 'cpu' (auto-detected if omitted)")
     seg_group.add_argument("--tile-size", type=int, default=512, help="Tile size in pixels")
@@ -321,7 +306,7 @@ def run(args: argparse.Namespace) -> dict:
               mesh_path, len(combined_mesh.vertices), len(combined_mesh.faces), len(meshes))
 
     combined_gdf = gpd.GeoDataFrame(pd.concat(gdf_parts, ignore_index=True), crs=footprints.crs)
-    vector3d_path = out_dir / "roofs_3d.gpkg"
+    vector3d_path = out_dir / "roofs_3d.geojson"
     save_3d_vector(combined_gdf, str(vector3d_path))
 
     return {
@@ -333,6 +318,9 @@ def run(args: argparse.Namespace) -> dict:
 
 def main() -> None:
     args = build_arg_parser().parse_args()
+    args.input = str(Path(args.input_path) / DEFAULT_INPUT)
+    args.dsm = str(Path(args.input_path) / DEFAULT_DSM)
+    args.output_dir = args.output_path
     try:
         outputs = run(args)
     except Exception as exc:  # surface a clean error instead of a traceback wall

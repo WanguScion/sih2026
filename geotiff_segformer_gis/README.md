@@ -47,7 +47,7 @@ Fitted facets → 3D (x, y, z) polygons (geoseg/vector3d.py)
    │
    ▼  combine every building
 output/roofs.obj        ← final 3D mesh
-output/roofs_3d.gpkg     ← final 3D (x, y, z) GIS vector data
+output/roofs_3d.geojson     ← final 3D (x, y, z) GIS vector data
 ```
 
 Everything from "SegFormer inference" through the final outputs runs in
@@ -62,9 +62,9 @@ into; `main.py` orchestrates all of them).
 |---|---|---|
 | **input** | `survey.tif` | Georeferenced orthophoto (RGB), e.g. from a GNSS/CORS-corrected drone or satellite survey |
 | **input** | `dsm.tif` | Digital Surface Model — an elevation raster that includes rooftops (not bare-earth-only like a DTM/DEM) |
-| output | `output/buildings.geojson` | 2D building footprint polygons from SegFormer |
+| output | `output/buildings.geojson` | 2D building footprint polygons from SegFormer (no Z) |
 | output | `output/roofs.obj` | Combined 3D mesh (roof surfaces + walls) for every reconstructed building |
-| output | `output/roofs_3d.gpkg` | **Final 3D GIS vector data**: one `PolygonZ` feature per roof facet, real (x, y, z) coordinates, with `slope_deg` / `aspect_deg` / `building_id` attributes |
+| output | `output/roofs_3d.geojson` | **Final 3D GIS vector data**: one `PolygonZ` feature per roof facet, real (x, y, z) coordinates, with `slope_deg` / `aspect_deg` / `building_id` attributes |
 
 The orthophoto and DSM need to cover overlapping ground. They don't need
 to share a CRS with each other — the DSM clip step reprojects the clip
@@ -110,7 +110,7 @@ python main.py \
 |---|---|
 | `--input` | Orthophoto path (default `survey.tif`) |
 | `--dsm` | DSM path (default `dsm.tif`) |
-| `--output-dir` | Where `buildings.geojson` / `roofs.obj` / `roofs_3d.gpkg` are written (default `output/`) |
+| `--output-dir` | Where `buildings.geojson` / `roofs.obj` / `roofs_3d.geojson` are written (default `output/`) |
 | `--model` | Any SegFormer checkpoint: a Hub id or local fine-tuned checkpoint dir |
 | `--tile-size` / `--overlap` | Controls memory use and edge-seam quality |
 | `--target-crs` | Reproject the orthophoto before segmentation, e.g. `EPSG:3857` |
@@ -259,7 +259,7 @@ python -m pytest tests/ -v
   orthophoto + DSM (with a stand-in segmenter swapped in for
   `SegFormerSegmenter`, since real inference needs model weights), and
   verifies all three real output files (`buildings.geojson`, `roofs.obj`,
-  `roofs_3d.gpkg`) are produced with correct content.
+  `roofs_3d.geojson`) are produced with correct content.
 
 None of the tests cover the SegFormer inference path itself, which needs
 real model weights and network access to Hugging Face Hub (or a local

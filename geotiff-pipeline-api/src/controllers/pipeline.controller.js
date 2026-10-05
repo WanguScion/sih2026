@@ -27,10 +27,12 @@ async function readResultGeoJson(outputPath) {
 
   if (stat.isDirectory()) {
     const entries = await fs.readdir(outputPath);
-    const geojsonFile = entries.find((f) => f.toLowerCase().endsWith('.geojson'));
-    if (!geojsonFile) {
+    const geojsonFiles = entries.filter((f) => f.toLowerCase().endsWith('.geojson'));
+    if (geojsonFiles.length === 0) {
       throw new HttpError(500, `No .geojson file found in OUTPUT_PATH directory: ${outputPath}`);
     }
+    const preferred = geojsonFiles.find((f) => /3d/i.test(f));
+    const geojsonFile = preferred || geojsonFiles[0];
     resolvedPath = path.join(outputPath, geojsonFile);
   }
 
@@ -84,26 +86,33 @@ async function processPipeline(req, res) {
 
   const { geojson, resolvedPath } = await readResultGeoJson(outputPath);
 
-  if (typeof ulpinUtil.generateULPIN !== 'function') {
-    throw new HttpError(500, 'ULPIN generation is not yet implemented.');
+  // Assigns a unique ULPIN to every feature, mutates `geojson` in place,
+  // and writes the updated FeatureCollection back to `resolvedPath`.
+  let ulpins;
+  try {
+    ulpins = await ulpinUtil.generateULPINs({ geojson, outputPath: resolvedPath });
+  } catch (err) {
+    throw new HttpError(500, `ULPIN generation failed: ${err.message}`);
   }
 
-  const ulpin = await ulpinUtil.generateULPIN({ geojson, inputPath, outputPath: resolvedPath });
-
-  if (!ulpin) {
-    throw new HttpError(500, 'ULPIN generator did not return a ULPIN.');
+  if (!Array.isArray(ulpins) || ulpins.length === 0) {
+    throw new HttpError(500, 'ULPIN generator did not return any ULPINs (no features in pipeline output?).');
   }
 
-  await createPipelineRun({
-    ulpin,
-    geojson,
-    inputPath,
-    outputPath: resolvedPath,
-    status: 'SUCCESS',
-  });
+  // One record per parcel so GET /runs/:ulpin works for every ULPIN issued.
+  for (let i = 0; i < ulpins.length; i++) {
+    await createPipelineRun({
+      ulpin: ulpins[i],
+      geojson: { type: 'FeatureCollection', features: [geojson.features[i]] },
+      inputPath,
+      outputPath: resolvedPath,
+      status: 'SUCCESS',
+    });
+  }
 
   res.status(201).json({
-    ulpin,
+    count: ulpins.length,
+    ulpins,
     outputPath: resolvedPath,
     pipelineStdout: pipelineResult.stdout,
   });

@@ -16,7 +16,7 @@ Copy `.env.example` to `.env` and fill in:
 | Variable | Required | Meaning |
 |---|---|---|
 | `INPUT_PATH` | yes | Directory the two uploads are saved into, as `survey.tif` and `dsm.tif` |
-| `OUTPUT_PATH` | yes | Where the pipeline's 3D GeoJSON result is read from — a direct `.geojson` file path, **or** a directory the pipeline writes a `.geojson` file into (both supported) |
+| `OUTPUT_PATH` | yes | Where the pipeline's 3D GeoJSON result is read from — a direct `.geojson` file path, **or** a directory the pipeline writes into (both supported; see note below on which file gets picked when there's more than one) |
 | `MAIN_PIPELINE_PATH` | yes | Path to the Python pipeline entry point |
 | `DATABASE_URL` | yes | Postgres connection string (with PostGIS available), used by Prisma |
 | `PORT` | no (default `3000`) | HTTP port |
@@ -24,6 +24,7 @@ Copy `.env.example` to `.env` and fill in:
 | `PIPELINE_TIMEOUT_MS` | no (default `600000`) | Kill the pipeline subprocess if it runs longer than this |
 | `MAX_UPLOAD_MB` | no (default `500`) | Max size per uploaded file |
 | `UPLOAD_TMP_DIR` | no | Where uploads first land before being moved into `INPUT_PATH`; defaults to a folder under the OS temp dir |
+| `CORS_ORIGIN` | no (default `*`) | Allowed browser origin for CORS. Set this to your frontend's actual origin (e.g. `https://app.example.com`) in production instead of leaving it wide open |
 
 ## Install & run
 
@@ -116,6 +117,22 @@ Response (`200`):
 
 Liveness check, no DB dependency.
 
+## Troubleshooting: ".tif upload isn't being accepted"
+
+A few distinct problems all look like "the API won't take my file" from the frontend. Check in this order:
+
+1. **CORS (the most common one for a browser frontend).** If the frontend runs on a different origin than this API (almost always true in dev — e.g. a Vite/React dev server on `:5173` calling an API on `:3000`), the browser sends a preflight `OPTIONS` request first. If that preflight fails, the browser never even attempts the actual upload — and depending on your dev tools, this can look like nothing happened rather than a clear error. This app now sends CORS headers (`cors` middleware, controlled by `CORS_ORIGIN`); if you're on an older copy of this project without it, that's very likely the cause. Check your browser's Network tab for a failed/red `OPTIONS` request to `/api/pipeline/process` to confirm.
+
+2. **Field name mismatch.** The endpoint requires the multipart fields to be named **exactly** `geotiff` and `dsm`. A file sent under any other field name (`file`, `orthophoto`, `image`, etc.) is rejected by Multer before the controller even runs. This now returns a specific message — `Unexpected field "X". This endpoint expects multipart form fields named exactly "geotiff" and "dsm".` — distinct from the wrong-extension error, so check the actual response body for which one you're getting.
+
+3. **Not actually sending `multipart/form-data`.** If the frontend sends the raw file as the request body (instead of wrapping it in a `FormData` object), or manually sets a `Content-Type` header instead of letting the browser/HTTP client set the multipart boundary itself, Multer won't parse any files at all — `req.files` will simply be empty, and you'll get `400 "Both files are required..."` even though you did attach a file. **Never set `Content-Type` manually** when sending `FormData` — let `fetch`/`axios`/the browser set it (it needs to include the multipart boundary string).
+
+4. **File too large.** Default limit is 500MB per file (`MAX_UPLOAD_MB`). A file over that returns a `400` with Multer's `LIMIT_FILE_SIZE` code. Raise `MAX_UPLOAD_MB` if your GeoTIFFs are genuinely bigger than that.
+
+5. **Wrong extension.** Only `.tif`/`.tiff` (case-insensitive) pass the filter — this is the one case that actually means what it says.
+
+If none of these match what you're seeing, check the exact HTTP status code and response body (not just "it didn't work") — every rejection path above returns a distinct message precisely so this is diagnosable from the response alone.
+
 ## How MAIN_PIPELINE_PATH is invoked
 
 The Python process is spawned with **both** a CLI-flag contract and an environment-variable contract, so whichever the target script reads works:
@@ -125,6 +142,12 @@ The Python process is spawned with **both** a CLI-flag contract and an environme
 ```
 
 with `INPUT_PATH` and `OUTPUT_PATH` also injected into the subprocess's environment. If your Python entry point instead expects e.g. `--input`/`--dsm`/`--output-dir` flags (as the `geotiff_segformer_gis` project's `main.py` does), point `MAIN_PIPELINE_PATH` at a thin wrapper script that translates `--input-path`/`--output-path` (or the env vars) into that script's actual flags, rather than changing this app's contract per pipeline.
+
+### Which file gets picked when OUTPUT_PATH is a directory
+
+The pipeline can write more than one `.geojson` file into `OUTPUT_PATH` — e.g. `geotiff_segformer_gis`'s `main.py` writes both `buildings.geojson` (2D footprints, **no Z**) and `roofs_3d.geojson` (the actual 3D result, **with Z**) into the same output directory. When `OUTPUT_PATH` is a directory, this app picks whichever `.geojson` file has `3d` (case-insensitive) in its name; if none matches, it falls back to the first `.geojson` file found, in whatever order `fs.readdir` returns (not guaranteed to be alphabetical or creation-order).
+
+If your pipeline's 3D output file doesn't have `3d` in its name, either rename it, or point `OUTPUT_PATH` directly at that file instead of at its containing directory — the direct-file form is always unambiguous.
 
 ## ULPIN generation
 
@@ -176,10 +199,12 @@ I do not have a live Postgres/PostGIS instance or a working `prisma generate` in
 - `POST /api/pipeline/process` correctly rejects: both files missing, one file missing, wrong file extension — all `400` with clear messages.
 - A valid upload is correctly moved to `INPUT_PATH/survey.tif` and `INPUT_PATH/dsm.tif`.
 - The Python subprocess is spawned with the right args/env and its stdout/stderr are captured.
-- The resulting GeoJSON at `OUTPUT_PATH` is correctly located and parsed.
+- The resulting GeoJSON at `OUTPUT_PATH` is correctly located and parsed — including, specifically, correctly preferring a `*3d*.geojson` file over a `buildings.geojson` (2D, no Z) sitting in the same output directory, and confirmed the resolved file's coordinates retain their Z value (`[x, y, z]`, 3 elements) all the way through to what gets handed to the raw SQL insert.
 - With the ULPIN util left empty: the flow correctly stops with `500 "ULPIN generation is not yet implemented"` right before any database write — confirmed no row is written to Postgres in this state.
 - With a temporary stub `generateULPIN()` swapped in: execution correctly reaches the raw-SQL insert construction (the `$executeRaw` call itself), failing only at Prisma's query-engine resolution — i.e. everything on the Node side of the DB boundary is confirmed correct.
 - `GET /api/pipeline/query/:ulpin` and `GET /api/pipeline/fetchall` (including `?limit=` parsing/clamping for non-numeric and out-of-range values) route correctly and reach the same raw-SQL query-construction boundary before failing only at Prisma's query-engine resolution.
+- CORS preflight (`OPTIONS`) now correctly returns `204` with `Access-Control-Allow-Origin`/`-Methods` headers, and real requests carry the `Access-Control-Allow-Origin` header — confirmed via `curl` with an `Origin` header set, simulating a cross-origin browser request.
+- The field-name-mismatch vs. wrong-extension error messages are confirmed distinct: sending files under unrecognized field names returns the "Unexpected field" message; sending a non-`.tif` file under the correct field names returns the "only .tif/.tiff files are accepted" message.
 
 **Not verified here** (needs a real Postgres+PostGIS instance and `npx prisma generate` to actually run, which needs internet access this sandbox didn't have):
 - The `pipeline_runs` raw INSERT actually executing against real PostGIS.
